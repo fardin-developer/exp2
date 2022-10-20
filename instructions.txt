@@ -1,0 +1,19 @@
+there is two API
+  1. First API will send video id of every video of that playlist_link. Eg:-
+    
+//playlist of two videos
+
+    {
+      "contentDetails": {
+        "videoId": "RqiU5nzj_nU"
+      }
+    },
+    {
+      "contentDetails": {
+        "videoId": "T_U_VsHkc_Y"
+      }
+    }
+
+
+  2. We have to pass each video id in 2nd url and make a request. It will response
+   duration of that video

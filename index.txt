@@ -1,0 +1,112 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const ejs = require('ejs');
+const request = require('request');
+const axios = require('axios')
+app = express()
+
+
+app.use(express.static("public"));
+app.set('view engine', 'ejs');
+app.use(bodyParser.urlencoded({ extended: true }));
+
+
+//API KEY
+let API_KEY = 'AIzaSyCV4CMKOtur7xo6O9DtLaQzbY35JIipeRs'
+//get video id from url
+
+app.get('/', (req, res) => {
+    res.render('index')
+});
+var link
+app.post('/', (req, res) => {
+    link = req.body.playlist_link
+    link = link.slice(38);
+    let url1 = `https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&maxResults=500&fields=items/contentDetails/videoId,nextPageToken,pageInfo&key=${API_KEY}&playlistId=${link}&pageToken=`
+
+
+    request(url1, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            details = JSON.parse(body);
+            // console.log(details);
+
+
+
+            var minSum = 0;
+            var Array = []
+            for (let i = 0; i < details.items.length; i++) {
+                var id = details.items[i].contentDetails.videoId
+                // console.log(id);
+
+                let url2 = `www.googleapis.com/youtube/v3/videos?&part=contentDetails&key=AIzaSyDCskWpTFkgZT4CEnW-3TU8k3QZZbtoTxA&id=${id}&fields=items/contentDetails/duration`
+                // request(url2, function (error, response, duration) {
+                //     if (!error && response.statusCode == 200) {
+                //         console.log(duration);
+                //     }
+                // })
+
+
+
+
+                axios.get(url2)
+                    // Show response data
+                    
+                    .then(function (response) {
+
+
+                        // handle success
+                        let duration = response.data.items[0].contentDetails.duration;
+                        let Hour = duration.substring(0, duration.indexOf('H'));
+                        Hour = Hour.replaceAll("PT", "");
+
+                        // let minute = duration.substring(0, duration.indexOf('M'));
+                        let minute = duration
+                        minute = duration.replaceAll("PT", "");
+                        console.log(duration);
+                        minute = minute.split(/[HM]/);
+
+                        console.log(minute);
+                        // console.log(minute.length);
+                        if (minute.length == 3) {
+                            var minute1 = minute[1];
+                            min1 = parseInt(minute1);
+                            minSum = minSum + min1;
+
+                            // console.log(min1);
+
+                            console.log("if  "+minSum);
+
+
+                            
+                        } else if (minute.length == 2) {
+                            var min0 = parseInt(minute[0]);
+                            minSum = minSum + min0
+                            console.log("else: "+ min0);
+                            // console.log(minSum);
+                            // console.log(minute);
+                        }
+
+
+                    })
+                    .catch(err => console.log(err))
+
+
+            }
+
+        }
+    })
+
+
+});
+
+
+function name(params) {
+    
+
+
+}
+
+
+app.listen(3000, () => {
+    console.log("server running at port 3000");
+})
